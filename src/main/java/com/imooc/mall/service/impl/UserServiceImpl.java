@@ -66,11 +66,11 @@ public class UserServiceImpl implements IUserService {
         }
 
         // 如果密码不匹配 返回：用户名或密码错误
-        if (!user.getPassword().equals(DigestUtils.md5DigestAsHex(user.getPassword().getBytes(StandardCharsets.UTF_8)))) {
+        if (!user.getPassword().equals(DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8)))) {
             return ResponseVo.error(ResponseEnum.USERNAME_OR_PASSWORD_ERROR);
         }
-
-        return ResponseVo.success();
+        user.setPassword("");
+        return ResponseVo.success(user);
     }
 
     private void error() {
