@@ -64,10 +64,6 @@ public class UserController {
     public ResponseVo<User> userInfo(HttpSession session) {
         log.info("/login sessionId={}", session.getId());
         User user = (User) session.getAttribute(MallConst.CURRENT_USER);
-        if (user == null) {
-            return ResponseVo.error(ResponseEnum.NEED_LOGIN);
-        }
-
         return ResponseVo.success(user);
     }
 
