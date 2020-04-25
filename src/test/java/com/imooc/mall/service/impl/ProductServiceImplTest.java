@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.imooc.mall.MallApplicationTests;
 import com.imooc.mall.enums.ResponseEnum;
 import com.imooc.mall.service.IProductService;
+import com.imooc.mall.vo.ProductDetailVo;
 import com.imooc.mall.vo.ResponseVo;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,6 +22,12 @@ public class ProductServiceImplTest extends MallApplicationTests {
     @Test
     public void list() {
         ResponseVo<PageInfo> responseVo = productService.list(100002,1,1);
+        Assert.assertEquals(responseVo.getStatus(), ResponseEnum.SUCCESS.getCode());
+    }
+
+    @Test
+    public void detail() {
+        ResponseVo<ProductDetailVo> responseVo = productService.detail(26);
         Assert.assertEquals(responseVo.getStatus(), ResponseEnum.SUCCESS.getCode());
     }
 }
