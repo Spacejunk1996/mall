@@ -4,6 +4,7 @@ import com.imooc.mall.vo.CategoryVo;
 import com.imooc.mall.vo.ResponseVo;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Zixu Jiang
@@ -11,4 +12,6 @@ import java.util.List;
  */
 public interface ICategories {
     ResponseVo<List<CategoryVo>> selectAll();
+
+    void findSubCategoryId(Integer categoryId, Set<Integer> resultSet);
 }
