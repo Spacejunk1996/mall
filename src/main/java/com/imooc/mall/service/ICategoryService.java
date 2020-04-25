@@ -10,7 +10,7 @@ import java.util.Set;
  * @author Zixu Jiang
  * @date 4/20/20 5:32 PM
  */
-public interface ICategories {
+public interface ICategoryService {
     ResponseVo<List<CategoryVo>> selectAll();
 
     void findSubCategoryId(Integer categoryId, Set<Integer> resultSet);

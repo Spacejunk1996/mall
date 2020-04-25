@@ -2,7 +2,7 @@ package com.imooc.mall.service.impl;
 
 import com.imooc.mall.dao.CategoryMapper;
 import com.imooc.mall.pojo.Category;
-import com.imooc.mall.service.ICategories;
+import com.imooc.mall.service.ICategoryService;
 import com.imooc.mall.vo.CategoryVo;
 import com.imooc.mall.vo.ResponseVo;
 import org.springframework.beans.BeanUtils;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import static com.imooc.mall.consts.MallConst.ROOT_PARENT_ID;
 
@@ -20,7 +21,7 @@ import static com.imooc.mall.consts.MallConst.ROOT_PARENT_ID;
  * @date 4/20/20 5:33 PM
  */
 @Service
-public class CategoryServiceImpl implements ICategories {
+public class CategoryServiceImpl implements ICategoryService {
 
     @Autowired
     private CategoryMapper categoryMapper;
@@ -69,4 +70,20 @@ public class CategoryServiceImpl implements ICategories {
         BeanUtils.copyProperties(category, categoryVo);
         return categoryVo;
     }
+
+    @Override
+    public void findSubCategoryId(Integer id, Set<Integer> resultSet) {
+        List<Category> categories = categoryMapper.selectAll();
+        findSubCategoryId(id, resultSet, categories);
+    }
+
+    public void findSubCategoryId(Integer id, Set<Integer> resultSet, List<Category> categories) {
+        for (Category category: categories) {
+            if (category.getParentId().equals(id)) {
+                resultSet.add(category.getId());
+                findSubCategoryId(category.getId(), resultSet, categories);
+            }
+        }
+    }
+
 }

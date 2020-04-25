@@ -1,6 +1,6 @@
 package com.imooc.mall.controller;
 
-import com.imooc.mall.service.ICategories;
+import com.imooc.mall.service.ICategoryService;
 import com.imooc.mall.vo.CategoryVo;
 import com.imooc.mall.vo.ResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.util.List;
 public class CategoryController {
 
     @Autowired
-    private ICategories categories;
+    private ICategoryService categories;
 
     @GetMapping("/category")
     public ResponseVo<List<CategoryVo>> category() {
