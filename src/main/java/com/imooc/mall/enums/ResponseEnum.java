@@ -31,6 +31,8 @@ public enum ResponseEnum {
 
     PRODUCT_STOCK_ERROR(14, "商品库存不足"),
 
+    CART_PRODUCT_NOT_EXIT(13, "购物车商品不存在"),
+
     ;
 
     Integer code;

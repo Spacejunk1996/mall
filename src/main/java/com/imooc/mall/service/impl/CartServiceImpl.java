@@ -6,6 +6,7 @@ import com.imooc.mall.dao.ProductMapper;
 import com.imooc.mall.enums.ProductStatusEnum;
 import com.imooc.mall.enums.ResponseEnum;
 import com.imooc.mall.form.CartAddForm;
+import com.imooc.mall.form.CartUpdateForm;
 import com.imooc.mall.pojo.Cart;
 import com.imooc.mall.pojo.Product;
 import com.imooc.mall.service.ICartService;
@@ -79,7 +80,7 @@ public class CartServiceImpl implements ICartService {
         opsForHash.put(redisKey,
                 String.valueOf(product.getId()),
                 gson.toJson(cart));
-        return null;
+        return list(uid);
     }
 
     @Override
@@ -116,7 +117,7 @@ public class CartServiceImpl implements ICartService {
                 cartProductVoList.add(cartProductVo);
 
                 if (!cartProductVo.getProductSelected())
-                    cartVo.setSelectedAll(false);
+                    selectAll = false;
 
                 if (cart.getProductSelected()) {
                     cartTotalPrice = cartTotalPrice.add(cartProductVo.getProductTotalPrice());
@@ -133,5 +134,41 @@ public class CartServiceImpl implements ICartService {
         cartVo.setCartProductVoList(cartProductVoList);
 
         return ResponseVo.success(cartVo);
+    }
+
+    @Override
+    public ResponseVo<CartVo> update(Integer uid, Integer productId, CartUpdateForm form) {
+        HashOperations<String, String, String> opsForHash =  redisTemplate.opsForHash();
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        String value = opsForHash.get(redisKey, String.valueOf(productId));
+
+        if (StringUtil.isEmpty(value)) {
+            return ResponseVo.error(ResponseEnum.CART_PRODUCT_NOT_EXIT);
+        }
+
+        Cart cart = gson.fromJson(value, Cart.class);
+        if (form.getQuantity() != null && form.getQuantity() >= 0) {
+            cart.setQuantity(form.getQuantity());
+        }
+        if (form.getSelected() != null) {
+            cart.setProductSelected(form.getSelected());
+        }
+
+        opsForHash.put(redisKey, String.valueOf(productId), gson.toJson(cart));
+        return list(uid);
+    }
+
+    @Override
+    public ResponseVo<CartVo> delete(Integer uid, Integer productId) {
+        HashOperations<String, String, String> opsForHash =  redisTemplate.opsForHash();
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        String value = opsForHash.get(redisKey, String.valueOf(productId));
+
+        if (StringUtil.isEmpty(value)) {
+            return ResponseVo.error(ResponseEnum.CART_PRODUCT_NOT_EXIT);
+        }
+
+        opsForHash.delete(redisKey, String.valueOf(productId));
+        return list(uid);
     }
 }
