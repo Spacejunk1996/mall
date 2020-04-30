@@ -9,12 +9,18 @@ import com.imooc.mall.form.CartAddForm;
 import com.imooc.mall.pojo.Cart;
 import com.imooc.mall.pojo.Product;
 import com.imooc.mall.service.ICartService;
+import com.imooc.mall.vo.CartProductVo;
 import com.imooc.mall.vo.CartVo;
 import com.imooc.mall.vo.ResponseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zixu Jiang
@@ -25,6 +31,8 @@ public class CartServiceImpl implements ICartService {
 
     private final static String CART_REDIS_KEY_TEMPLATE = "cart_%d";
 
+    private Gson gson = new Gson();
+
     @Autowired
     private ProductMapper productMapper;
 
@@ -34,7 +42,6 @@ public class CartServiceImpl implements ICartService {
     @Override
     public ResponseVo<CartVo> add(Integer uid, CartAddForm form) {
         Integer quantity = 1;
-        Gson gson = new Gson();
         Product product = productMapper.selectByPrimaryKey(form.getProductId());
 
         // 商品是否存在
@@ -73,5 +80,58 @@ public class CartServiceImpl implements ICartService {
                 String.valueOf(product.getId()),
                 gson.toJson(cart));
         return null;
+    }
+
+    @Override
+    public ResponseVo<CartVo> list(Integer uid) {
+        HashOperations<String, String, String> opsForHash = redisTemplate.opsForHash();
+        String redisKey = String.format(CART_REDIS_KEY_TEMPLATE, uid);
+        Map<String, String> entries = opsForHash.entries(redisKey);
+        boolean selectAll = true;
+        Integer cartTotalQuantity = 0;
+        BigDecimal cartTotalPrice = BigDecimal.ZERO;
+
+        CartVo cartVo = new CartVo();
+        List<CartProductVo> cartProductVoList = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry: entries.entrySet()) {
+            Integer productId = Integer.valueOf(entry.getKey());
+            Cart cart = gson.fromJson(entry.getValue(), Cart.class);
+
+            //TODO 需要优化 -> 不在 for loop 中进行数据库查询
+            Product product = productMapper.selectByPrimaryKey(productId);
+            if (product != null) {
+                CartProductVo cartProductVo = new CartProductVo(
+                        productId,
+                        cart.getQuantity(),
+                        product.getName(),
+                        product.getSubtitle(),
+                        product.getMainImage(),
+                        product.getPrice(),
+                        product.getStatus(),
+                        product.getPrice().multiply(BigDecimal.valueOf(cart.getQuantity())),
+                        product.getStock(),
+                        cart.getProductSelected()
+                );
+                cartProductVoList.add(cartProductVo);
+
+                if (!cartProductVo.getProductSelected())
+                    cartVo.setSelectedAll(false);
+
+                if (cart.getProductSelected()) {
+                    cartTotalPrice = cartTotalPrice.add(cartProductVo.getProductTotalPrice());
+                }
+
+                cartTotalQuantity += cart.getQuantity();
+            }
+        }
+
+        cartVo.setCartProductVoList(cartProductVoList);
+        cartVo.setSelectedAll(selectAll);
+        cartVo.setCartTotalQuantity(cartTotalQuantity);
+        cartVo.setCartTotalPrice(cartTotalPrice);
+        cartVo.setCartProductVoList(cartProductVoList);
+
+        return ResponseVo.success(cartVo);
     }
 }
