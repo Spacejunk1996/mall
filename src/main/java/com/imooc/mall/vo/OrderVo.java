@@ -1,24 +1,22 @@
-package com.imooc.mall.pojo;
+package com.imooc.mall.vo;
 
+import com.imooc.mall.pojo.Shipping;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
+/**
+ * @author Zixu Jiang
+ * @date 5/3/20 1:29 PM
+ */
 @Data
-public class Order {
-
-    private Integer id;
+public class OrderVo {
 
     private Long orderNo;
 
-    private Integer userId;
-
-    private Integer shippingId;
-
     private BigDecimal payment;
-
-    private Integer paymentType;
 
     private Integer postage;
 
@@ -34,5 +32,9 @@ public class Order {
 
     private Date createTime;
 
-    private Date updateTime;
+    private List<OrderItemVo> orderItemVoList;
+
+    private Integer shippingId;
+
+    private Shipping shippingVo;
 }

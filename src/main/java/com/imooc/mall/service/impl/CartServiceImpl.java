@@ -13,6 +13,7 @@ import com.imooc.mall.service.ICartService;
 import com.imooc.mall.vo.CartProductVo;
 import com.imooc.mall.vo.CartVo;
 import com.imooc.mall.vo.ResponseVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -28,6 +29,7 @@ import java.util.Map;
  * @date 4/26/20 2:26 PM
  */
 @Service
+@Slf4j
 public class CartServiceImpl implements ICartService {
 
     private final static String CART_REDIS_KEY_TEMPLATE = "cart_%d";
@@ -75,7 +77,7 @@ public class CartServiceImpl implements ICartService {
             // 商品已存在，数量+1
             cart = gson.fromJson(value, Cart.class);
             cart.setQuantity(cart.getQuantity()+quantity);
-
+            log.info("cart={}", cart);
         }
         opsForHash.put(redisKey,
                 String.valueOf(product.getId()),
