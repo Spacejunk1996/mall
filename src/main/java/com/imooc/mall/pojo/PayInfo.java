@@ -7,6 +7,7 @@ import java.util.Date;
 
 @Data
 public class PayInfo {
+
     private Integer id;
 
     private Integer userId;
@@ -24,4 +25,11 @@ public class PayInfo {
     private Date createTime;
 
     private Date updateTime;
+
+    public PayInfo(Long orderNo, Integer payPlatform, String platformStatus, BigDecimal payAmount) {
+        this.orderNo = orderNo;
+        this.payPlatform = payPlatform;
+        this.platformStatus = platformStatus;
+        this.payAmount = payAmount;
+    }
 }

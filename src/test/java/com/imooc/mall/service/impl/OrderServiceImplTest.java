@@ -1,5 +1,6 @@
 package com.imooc.mall.service.impl;
 
+import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.imooc.mall.MallApplicationTests;
@@ -14,12 +15,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Zixu Jiang
  * @date 5/3/20 4:21 PM
  */
 @Slf4j
+@Transactional
 public class OrderServiceImplTest extends MallApplicationTests {
 
     @Autowired
@@ -33,6 +36,8 @@ public class OrderServiceImplTest extends MallApplicationTests {
     private Integer shippingId = 9;
 
     private Integer productId = 26;
+
+    private Long orderNo = 1588629354801L;
 
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -50,6 +55,27 @@ public class OrderServiceImplTest extends MallApplicationTests {
     public void create() {
         ResponseVo<OrderVo> responseVo = orderService.create(uid, shippingId);
         log.info("responseV0={}", gson.toJson(responseVo));
+        Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
+    }
+
+    @Test
+    public void list() {
+        ResponseVo<PageInfo> responseVo = orderService.list(uid, 1,10);
+        log.info("responseV0={}", gson.toJson(responseVo));
+        Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
+    }
+
+    @Test
+    public void detail() {
+        ResponseVo<OrderVo> responseVo = orderService.detail(uid, orderNo);
+        log.info("responseVo={}", gson.toJson(responseVo));
+        Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
+    }
+
+    @Test
+    public void cancel() {
+        ResponseVo responseVo = orderService.cancel(uid, orderNo);
+        log.info("responseVo={}", gson.toJson(responseVo));
         Assert.assertEquals(ResponseEnum.SUCCESS.getCode(), responseVo.getStatus());
     }
 }
